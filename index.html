@@ -5,7 +5,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Kouzelné pohádkové bludiště</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     @import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap");
 
@@ -132,10 +131,11 @@
     <button onclick="showScores()">Zobrazit skóre</button>
     <button onclick="showOnlineScores()">Zobrazit online skóre</button>
   </div>
-  <script>
+  <script type="module" >
+    import createClient from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
     const supabaseUrl = 'https://olhgutdozhdvniefmltx.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9saGd1dGRvemhkdm5pZWZtbHR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjI4NzYwNTgsImV4cCI6MjAzODQ1MjA1OH0.RmahBsbb4QnO0xpTH-Bpe8f9vJFypcq6z5--e4s0MJI';
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
