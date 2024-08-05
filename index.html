@@ -4,10 +4,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
- <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-firestore-compat.js"></script>
   <title>Kouzelné pohádkové bludiště</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     @import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap");
 
@@ -125,7 +123,7 @@
     <h1 class="floating">Kouzelné pohádkové bludiště</h1>
     <canvas id="gameCanvas" width="700" height="700"></canvas>
     <div class="controls">
-      <input type="text" id="playerName" placeholder="Zadejte své jméno" />
+      <input type="text" id="playerNameInput" placeholder="Zadejte své jméno" />
       <input type="text" id="seedInput" placeholder="Zadejte kouzelné slovo" />
       <button onclick="generateMaze()">Vyčarovat nové bludiště</button>
     </div>
@@ -135,21 +133,9 @@
     <button onclick="showOnlineScores()">Zobrazit online skóre</button>
   </div>
   <script>
-
-    // Your web app's Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyClj7SMzXPKc-JJV74AnsbVcmXoa6TSLzE",
-      authDomain: "fairymaze-dc586.firebaseapp.com",
-      projectId: "fairymaze-dc586",
-      storageBucket: "fairymaze-dc586.appspot.com",
-      messagingSenderId: "201345196258",
-      appId: "1:201345196258:web:1512b09ea9b9a4c97f7ebb",
-      measurementId: "G-6X386PQHDJ"
-    };
-
-    // Inicializace Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    const supabaseUrl = 'https://olhgutdozhdvniefmltx.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9saGd1dGRvemhkdm5pZWZtbHR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjI4NzYwNTgsImV4cCI6MjAzODQ1MjA1OH0.RmahBsbb4QnO0xpTH-Bpe8f9vJFypcq6z5--e4s0MJI';
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
@@ -170,6 +156,68 @@
     let keys = [];
     let collectedKeys = 0;
 
+    async function saveScoreToSupabase(playerName, levelName, score) {
+      const { data, error } = await supabase
+        .from('score')
+        .select('score')
+        .eq('levelname', levelName)
+        .order('score', { ascending: true })
+        .limit(1);
+
+      if (error) {
+        console.error('Chyba při načítání skóre:', error);
+        return;
+      }
+
+      async function showOnlineScores() {
+        const { data, error } = await supabase
+          .from('score')
+          .select('playername, levelname, score')
+          .order('score', { ascending: true });
+
+        if (error) {
+          console.error('Chyba při načítání online skóre:', error);
+          return;
+        }
+
+        let scoresTable = document.createElement("div");
+        scoresTable.style.position = "fixed";
+        scoresTable.style.top = "50%";
+        scoresTable.style.left = "50%";
+        scoresTable.style.transform = "translate(-50%, -50%)";
+        scoresTable.style.backgroundColor = "white";
+        scoresTable.style.padding = "20px";
+        scoresTable.style.borderRadius = "10px";
+        scoresTable.style.boxShadow = "0 0 10px rgba(0,0,0,0.5)";
+        scoresTable.style.maxHeight = "80vh";
+        scoresTable.style.overflowY = "auto";
+
+        let table = '<table style="border-collapse: collapse;"><tr><th style="padding: 10px; border: 1px solid black;">Jméno hráče</th><th style="padding: 10px; border: 1px solid black;">Název bludiště</th><th style="padding: 10px; border: 1px solid black;">Skóre</th></tr>';
+
+        for (let score of data) {
+          table += `<tr><td style="padding: 10px; border: 1px solid black;">${score.playername}</td><td style="padding: 10px; border: 1px solid black;">${score.levelname}</td><td style="padding: 10px; border: 1px solid black;">${score.score}</td></tr>`;
+        }
+
+        table += "</table>";
+
+        scoresTable.innerHTML = table + '<br><button onclick="this.parentNode.remove()">Zavřít</button>';
+        document.body.appendChild(scoresTable);
+      }
+
+      if (data.length === 0 || score < data[0].score) {
+        const { data: insertData, error: insertError } = await supabase
+          .from('score')
+          .insert([
+            { playername: playerName, levelname: levelName, score: score }
+          ]);
+
+        if (insertError) {
+          console.error('Chyba při ukládání skóre:', insertError);
+        } else {
+          console.log('Skóre úspěšně uloženo');
+        }
+      }
+    }
 
     function resizeCanvas() {
       const gameContainer = document.querySelector(".game-container");
@@ -202,52 +250,15 @@
       }
     }
 
-    function saveOnlineScore(seedText, moveCount) {
-      const playerName = document.getElementById("playerName").value;
-      db.collection("scores").doc(seedText).get().then(doc => {
-        if (!doc.exists || moveCount < doc.data().moveCount) {
-          db.collection("scores").doc(seedText).set({
-            playerName: playerName,
-            moveCount: moveCount,
-            seed: seedText
-          });
-        }
-      });
-    }
-
     function saveScore(seedText, moveCount) {
       let scores = JSON.parse(localStorage.getItem("mazeScores")) || {};
       if (!scores[seedText] || moveCount < scores[seedText]) {
         scores[seedText] = moveCount;
         localStorage.setItem("mazeScores", JSON.stringify(scores));
-        saveOnlineScore(seedText, moveCount);
+
+        const playerName = localStorage.getItem("playerName") || "Anonymní";
+        saveScoreToSupabase(playerName, seedText, moveCount);
       }
-    }
-
-    function showOnlineScores() {
-      db.collection("scores").orderBy("moveCount").limit(10).get().then(snapshot => {
-        let scoresTable = document.createElement("div");
-        scoresTable.style.position = "fixed";
-        scoresTable.style.top = "50%";
-        scoresTable.style.left = "50%";
-        scoresTable.style.transform = "translate(-50%, -50%)";
-        scoresTable.style.backgroundColor = "white";
-        scoresTable.style.padding = "20px";
-        scoresTable.style.borderRadius = "10px";
-        scoresTable.style.boxShadow = "0 0 10px rgba(0,0,0,0.5)";
-        scoresTable.style.maxHeight = "80vh";
-        scoresTable.style.overflowY = "auto";
-
-        let table = '<table style="border-collapse: collapse;"><tr><th style="padding: 10px; border: 1px solid black;">Jméno hráče</th><th style="padding: 10px; border: 1px solid black;">Kouzelné slovo</th><th style="padding: 10px; border: 1px solid black;">Nejlepší skóre</th></tr>';
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          table += `<tr><td style="padding: 10px; border: 1px solid black;">${data.playerName}</td><td style="padding: 10px; border: 1px solid black;">${data.seed}</td><td style="padding: 10px; border: 1px solid black;">${data.moveCount}</td></tr>`;
-        });
-        table += "</table>";
-
-        scoresTable.innerHTML = table + '<br><button onclick="this.parentNode.remove()">Zavřít</button>';
-        document.body.appendChild(scoresTable);
-      });
     }
 
     function showScores() {
@@ -741,13 +752,16 @@
     });
 
     window.onload = function () {
+      const savedName = localStorage.getItem("playerName");
+      if (savedName) {
+        document.getElementById("playerNameInput").value = savedName;
+      }
       resizeCanvas();
       generateMaze();
       animateMaze();
-      document.getElementById("playerName").value = localStorage.getItem("playerName") || "";
     };
 
-    document.getElementById("playerName").addEventListener("input", function () {
+    document.getElementById("playerNameInput").addEventListener("change", function () {
       localStorage.setItem("playerName", this.value);
     });
 
