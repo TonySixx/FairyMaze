@@ -173,41 +173,6 @@
         return;
       }
 
-      async function showOnlineScores() {
-        const { data, error } = await _supabase
-          .from('score')
-          .select('playername, levelname, score')
-          .order('score', { ascending: true });
-
-        if (error) {
-          console.error('Chyba při načítání online skóre:', error);
-          return;
-        }
-
-        let scoresTable = document.createElement("div");
-        scoresTable.style.position = "fixed";
-        scoresTable.style.top = "50%";
-        scoresTable.style.left = "50%";
-        scoresTable.style.transform = "translate(-50%, -50%)";
-        scoresTable.style.backgroundColor = "white";
-        scoresTable.style.padding = "20px";
-        scoresTable.style.borderRadius = "10px";
-        scoresTable.style.boxShadow = "0 0 10px rgba(0,0,0,0.5)";
-        scoresTable.style.maxHeight = "80vh";
-        scoresTable.style.overflowY = "auto";
-
-        let table = '<table style="border-collapse: collapse;"><tr><th style="padding: 10px; border: 1px solid black;">Jméno hráče</th><th style="padding: 10px; border: 1px solid black;">Název bludiště</th><th style="padding: 10px; border: 1px solid black;">Skóre</th></tr>';
-
-        for (let score of data) {
-          table += `<tr><td style="padding: 10px; border: 1px solid black;">${score.playername}</td><td style="padding: 10px; border: 1px solid black;">${score.levelname}</td><td style="padding: 10px; border: 1px solid black;">${score.score}</td></tr>`;
-        }
-
-        table += "</table>";
-
-        scoresTable.innerHTML = table + '<br><button onclick="this.parentNode.remove()">Zavřít</button>';
-        document.body.appendChild(scoresTable);
-      }
-
       if (data.length === 0 || score < data[0].score) {
         const { data: insertData, error: insertError } = await _supabase
           .from('score')
@@ -221,6 +186,41 @@
           console.log('Skóre úspěšně uloženo');
         }
       }
+    }
+
+    async function showOnlineScores() {
+      const { data, error } = await _supabase
+        .from('score')
+        .select('playername, levelname, score')
+        .order('score', { ascending: true });
+
+      if (error) {
+        console.error('Chyba při načítání online skóre:', error);
+        return;
+      }
+
+      let scoresTable = document.createElement("div");
+      scoresTable.style.position = "fixed";
+      scoresTable.style.top = "50%";
+      scoresTable.style.left = "50%";
+      scoresTable.style.transform = "translate(-50%, -50%)";
+      scoresTable.style.backgroundColor = "white";
+      scoresTable.style.padding = "20px";
+      scoresTable.style.borderRadius = "10px";
+      scoresTable.style.boxShadow = "0 0 10px rgba(0,0,0,0.5)";
+      scoresTable.style.maxHeight = "80vh";
+      scoresTable.style.overflowY = "auto";
+
+      let table = '<table style="border-collapse: collapse;"><tr><th style="padding: 10px; border: 1px solid black;">Jméno hráče</th><th style="padding: 10px; border: 1px solid black;">Název bludiště</th><th style="padding: 10px; border: 1px solid black;">Skóre</th></tr>';
+
+      for (let score of data) {
+        table += `<tr><td style="padding: 10px; border: 1px solid black;">${score.playername}</td><td style="padding: 10px; border: 1px solid black;">${score.levelname}</td><td style="padding: 10px; border: 1px solid black;">${score.score}</td></tr>`;
+      }
+
+      table += "</table>";
+
+      scoresTable.innerHTML = table + '<br><button onclick="this.parentNode.remove()">Zavřít</button>';
+      document.body.appendChild(scoresTable);
     }
 
     function resizeCanvas() {
