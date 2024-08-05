@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Kouzelné pohádkové bludiště</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.min.js"></script>
   <style>
     @import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap");
 
@@ -132,10 +133,10 @@
     <button onclick="showOnlineScores()">Zobrazit online skóre</button>
   </div>
   <script type="module" >
-    import createClient from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
     const supabaseUrl = 'https://olhgutdozhdvniefmltx.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9saGd1dGRvemhkdm5pZWZtbHR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjI4NzYwNTgsImV4cCI6MjAzODQ1MjA1OH0.RmahBsbb4QnO0xpTH-Bpe8f9vJFypcq6z5--e4s0MJI';
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const { createClient } = supabase;
+    const _supabase = createClient(supabaseUrl, supabaseKey);
 
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
@@ -157,7 +158,7 @@
     let collectedKeys = 0;
 
     async function saveScoreToSupabase(playerName, levelName, score) {
-      const { data, error } = await supabase
+      const { data, error } = await _supabase
         .from('score')
         .select('score')
         .eq('levelname', levelName)
@@ -170,7 +171,7 @@
       }
 
       async function showOnlineScores() {
-        const { data, error } = await supabase
+        const { data, error } = await _supabase
           .from('score')
           .select('playername, levelname, score')
           .order('score', { ascending: true });
@@ -205,7 +206,7 @@
       }
 
       if (data.length === 0 || score < data[0].score) {
-        const { data: insertData, error: insertError } = await supabase
+        const { data: insertData, error: insertError } = await _supabase
           .from('score')
           .insert([
             { playername: playerName, levelname: levelName, score: score }
