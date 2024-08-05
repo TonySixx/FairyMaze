@@ -427,6 +427,10 @@
       movingWalls = [];
       keys = [];
       collectedKeys = 0;
+      hammers = [];
+      collectedHammers = 0;
+      updateHammerCount();
+     
 
       for (let i = 0; i < 2; i++) {
         let x1, y1, x2, y2;
@@ -718,136 +722,136 @@
     }
 
     function movePlayer(dx, dy) {
-  const newX = playerPos.x + dx;
-  const newY = playerPos.y + dy;
+      const newX = playerPos.x + dx;
+      const newY = playerPos.y + dy;
 
-  const collidesWithMovingWall = movingWalls.some(
-    (wall) => wall.x === newX && wall.y === newY
-  );
+      const collidesWithMovingWall = movingWalls.some(
+        (wall) => wall.x === newX && wall.y === newY
+      );
 
-  if (
-    newX >= 0 &&
-    newX < size &&
-    newY >= 0 &&
-    newY < size &&
-    maze[newY][newX] === 0 &&
-    !collidesWithMovingWall
-  ) {
-    playerPos.x = newX;
-    playerPos.y = newY;
-    moveCount++;
-    document.getElementById("moveCount").textContent = moveCount;
+      if (
+        newX >= 0 &&
+        newX < size &&
+        newY >= 0 &&
+        newY < size &&
+        maze[newY][newX] === 0 &&
+        !collidesWithMovingWall
+      ) {
+        playerPos.x = newX;
+        playerPos.y = newY;
+        moveCount++;
+        document.getElementById("moveCount").textContent = moveCount;
 
-    for (let teleport of teleports) {
-      if (teleport.x1 === newX && teleport.y1 === newY) {
-        playerPos.x = teleport.x2;
-        playerPos.y = teleport.y2;
-        break;
-      } else if (teleport.x2 === newX && teleport.y2 === newY) {
-        playerPos.x = teleport.x1;
-        playerPos.y = teleport.y1;
-        break;
-      }
-    }
-
-    const keyIndex = keys.findIndex(
-      (key) => key.x === playerPos.x && key.y === playerPos.y
-    );
-    if (keyIndex !== -1) {
-      keys.splice(keyIndex, 1);
-      collectedKeys++;
-      updateKeyCount();
-    }
-
-    // Nový kód pro sbírání kladiv
-    const hammerIndex = hammers.findIndex(
-      (hammer) => hammer.x === playerPos.x && hammer.y === playerPos.y
-    );
-    if (hammerIndex !== -1) {
-      hammers.splice(hammerIndex, 1);
-      collectedHammers++;
-      updateHammerCount();
-    }
-
-    if (playerPos.x === goalPos.x && playerPos.y === goalPos.y) {
-      if (collectedKeys === totalKeys) {
-        alert(
-          `Gratuluji! Dosáhli jste cíle za ${moveCount} tahů a sebrali všechny klíče!`
-        );
-        saveScore(document.getElementById("seedInput").value, moveCount);
-      } else {
-        alert(
-          `Musíte sebrat všechny klíče, než můžete dokončit bludiště!`
-        );
-      }
-    }
-
-    for (let wall of movingWalls) {
-      wall.moveCounter++;
-      if (wall.moveCounter >= 3) {
-        wall.moveCounter = 0;
-        const directions = [
-          [0, -1],
-          [1, 0],
-          [0, 1],
-          [-1, 0],
-        ];
-        let validDirections = [];
-
-        for (let i = 0; i < 4; i++) {
-          const [dx, dy] = directions[i];
-          const newWallX = wall.x + dx;
-          const newWallY = wall.y + dy;
-
-          if (
-            newWallX >= 0 &&
-            newWallX < size &&
-            newWallY >= 0 &&
-            newWallY < size &&
-            maze[newWallY][newWallX] === 0 &&
-            !(newWallX === playerPos.x && newWallY === playerPos.y) &&
-            !teleports.some(
-              (t) =>
-                (t.x1 === newWallX && t.y1 === newWallY) ||
-                (t.x2 === newWallX && t.y2 === newWallY)
-            ) &&
-            !keys.some((k) => k.x === newWallX && k.y === newWallY) &&
-            !(newWallX === goalPos.x && newWallY === goalPos.y)
-          ) {
-            validDirections.push(i);
+        for (let teleport of teleports) {
+          if (teleport.x1 === newX && teleport.y1 === newY) {
+            playerPos.x = teleport.x2;
+            playerPos.y = teleport.y2;
+            break;
+          } else if (teleport.x2 === newX && teleport.y2 === newY) {
+            playerPos.x = teleport.x1;
+            playerPos.y = teleport.y1;
+            break;
           }
         }
 
-        if (validDirections.length > 0) {
-          wall.direction =
-            validDirections[
-              Math.floor(randomFunction() * validDirections.length)
+        const keyIndex = keys.findIndex(
+          (key) => key.x === playerPos.x && key.y === playerPos.y
+        );
+        if (keyIndex !== -1) {
+          keys.splice(keyIndex, 1);
+          collectedKeys++;
+          updateKeyCount();
+        }
+
+        // Nový kód pro sbírání kladiv
+        const hammerIndex = hammers.findIndex(
+          (hammer) => hammer.x === playerPos.x && hammer.y === playerPos.y
+        );
+        if (hammerIndex !== -1) {
+          hammers.splice(hammerIndex, 1);
+          collectedHammers++;
+          updateHammerCount();
+        }
+
+        if (playerPos.x === goalPos.x && playerPos.y === goalPos.y) {
+          if (collectedKeys === totalKeys) {
+            alert(
+              `Gratuluji! Dosáhli jste cíle za ${moveCount} tahů a sebrali všechny klíče!`
+            );
+            saveScore(document.getElementById("seedInput").value, moveCount);
+          } else {
+            alert(
+              `Musíte sebrat všechny klíče, než můžete dokončit bludiště!`
+            );
+          }
+        }
+
+        for (let wall of movingWalls) {
+          wall.moveCounter++;
+          if (wall.moveCounter >= 3) {
+            wall.moveCounter = 0;
+            const directions = [
+              [0, -1],
+              [1, 0],
+              [0, 1],
+              [-1, 0],
             ];
-          const [dx, dy] = directions[wall.direction];
-          wall.x += dx;
-          wall.y += dy;
+            let validDirections = [];
+
+            for (let i = 0; i < 4; i++) {
+              const [dx, dy] = directions[i];
+              const newWallX = wall.x + dx;
+              const newWallY = wall.y + dy;
+
+              if (
+                newWallX >= 0 &&
+                newWallX < size &&
+                newWallY >= 0 &&
+                newWallY < size &&
+                maze[newWallY][newWallX] === 0 &&
+                !(newWallX === playerPos.x && newWallY === playerPos.y) &&
+                !teleports.some(
+                  (t) =>
+                    (t.x1 === newWallX && t.y1 === newWallY) ||
+                    (t.x2 === newWallX && t.y2 === newWallY)
+                ) &&
+                !keys.some((k) => k.x === newWallX && k.y === newWallY) &&
+                !(newWallX === goalPos.x && newWallY === goalPos.y)
+              ) {
+                validDirections.push(i);
+              }
+            }
+
+            if (validDirections.length > 0) {
+              wall.direction =
+                validDirections[
+                Math.floor(randomFunction() * validDirections.length)
+                ];
+              const [dx, dy] = directions[wall.direction];
+              wall.x += dx;
+              wall.y += dy;
+            }
+          }
+        }
+
+        drawMaze();
+      } else if (collidesWithMovingWall && collectedHammers > 0) {
+        // Nový kód pro ničení pohyblivé zdi kladivem
+        const wallIndex = movingWalls.findIndex(
+          (wall) => wall.x === newX && wall.y === newY
+        );
+        if (wallIndex !== -1) {
+          movingWalls.splice(wallIndex, 1);
+          collectedHammers--;
+          updateHammerCount();
+          playerPos.x = newX;
+          playerPos.y = newY;
+          moveCount++;
+          document.getElementById("moveCount").textContent = moveCount;
+          drawMaze();
         }
       }
     }
-
-    drawMaze();
-  } else if (collidesWithMovingWall && collectedHammers > 0) {
-    // Nový kód pro ničení pohyblivé zdi kladivem
-    const wallIndex = movingWalls.findIndex(
-      (wall) => wall.x === newX && wall.y === newY
-    );
-    if (wallIndex !== -1) {
-      movingWalls.splice(wallIndex, 1);
-      collectedHammers--;
-      updateHammerCount();
-      playerPos.x = newX;
-      playerPos.y = newY;
-      moveCount++;
-      document.getElementById("moveCount").textContent = moveCount;
-      drawMaze();
-    }
-  }
-}
 
     function animateMaze() {
       drawMaze();
