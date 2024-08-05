@@ -134,6 +134,22 @@
     <button onclick="showOnlineScores()">Zobrazit online skóre</button>
   </div>
   <script>
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyClj7SMzXPKc-JJV74AnsbVcmXoa6TSLzE",
+      authDomain: "fairymaze-dc586.firebaseapp.com",
+      projectId: "fairymaze-dc586",
+      storageBucket: "fairymaze-dc586.appspot.com",
+      messagingSenderId: "201345196258",
+      appId: "1:201345196258:web:1512b09ea9b9a4c97f7ebb",
+      measurementId: "G-6X386PQHDJ"
+    };
+
+    // Inicializace Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     let size;
@@ -153,18 +169,6 @@
     let keys = [];
     let collectedKeys = 0;
 
-     // Your web app's Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyClj7SMzXPKc-JJV74AnsbVcmXoa6TSLzE",
-    authDomain: "fairymaze-dc586.firebaseapp.com",
-    projectId: "fairymaze-dc586",
-    storageBucket: "fairymaze-dc586.appspot.com",
-    messagingSenderId: "201345196258",
-    appId: "1:201345196258:web:1512b09ea9b9a4c97f7ebb",
-    measurementId: "G-6X386PQHDJ"
-  };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
 
     function resizeCanvas() {
       const gameContainer = document.querySelector(".game-container");
