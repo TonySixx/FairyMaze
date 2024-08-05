@@ -130,13 +130,16 @@
     <p>Kouzelnické kroky: <span id="moveCount">0</span></p>
     <p>Kouzelné klíče: <span id="keyCount">0</span></p>
     <button onclick="showScores()">Zobrazit skóre</button>
-    <button onclick="showOnlineScores()">Zobrazit online skóre</button>
+    <button onclick="window.showOnlineScores()">Zobrazit online skóre</button>
   </div>
   <script>
     const supabaseUrl = 'https://olhgutdozhdvniefmltx.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9saGd1dGRvemhkdm5pZWZtbHR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjI4NzYwNTgsImV4cCI6MjAzODQ1MjA1OH0.RmahBsbb4QnO0xpTH-Bpe8f9vJFypcq6z5--e4s0MJI';
-    const { createClient } = supabase;
-    const _supabase = createClient(supabaseUrl, supabaseKey);
+    //const { createClient } = supabase;
+    //const _supabase = createClient(supabaseUrl, supabaseKey);
+    const _supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    window.showOnlineScores = showOnlineScores;
 
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
