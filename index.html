@@ -26,7 +26,7 @@
       text-align: center;
       background: rgba(255, 255, 255, 0.8);
       border-radius: 20px;
-      padding: 30px;
+      padding: 20px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     }
 
@@ -141,6 +141,41 @@
         padding: 15px;
       }
 
+      p {
+        font-size: 1em;
+        margin: 5px 0;
+      }
+
+    }
+
+    @media only screen and (max-height: 900px) {
+      h1 {
+        font-size: 1.5em;
+        margin-bottom: 5px;
+      }
+
+      input {
+        padding: 6px 10px;
+        margin: 4px 0;
+        font-size: 14px;
+
+      }
+
+      button {
+        padding: 6px 20px;
+        font-size: 14px;
+        margin: 4px 2px;
+      }
+
+      .game-container {
+        padding: 15px;
+      }
+
+      p {
+        font-size: 1em;
+        margin: 5px 0;
+      }
+
 
     }
   </style>
@@ -154,18 +189,19 @@
       <input type="text" id="playerNameInput" placeholder="Zadejte své jméno" />
       <input type="text" id="seedInput" placeholder="Zadejte kouzelné slovo" />
       <button onclick="generateMaze()">Vyčarovat nové bludiště</button>
-    </div>
-    <div style="display: flex; justify-content: center; align-items: center; gap: 20px;">
-      <div>
-        <button onclick="showScores()">Zobrazit skóre</button>
-        <button onclick="window.showOnlineScores()">Zobrazit online skóre</button>
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+        <div>
+          <button onclick="showScores()">Zobrazit skóre</button>
+          <button onclick="window.showOnlineScores()">Zobrazit online skóre</button>
+        </div>
+        <div style="padding-right: 10px;">
+          <p>Kouzelnické kroky: <span id="moveCount">0</span></p>
+          <p>Kouzelné klíče: <span id="keyCount">0</span></p>
+          <p>Kladiva: <span id="hammerCount">0</span></p>
+        </div>
       </div>
-      <div>
-        <p>Kouzelnické kroky: <span id="moveCount">0</span></p>
-        <p>Kouzelné klíče: <span id="keyCount">0</span></p>
-        <p>Kladiva: <span id="hammerCount">0</span></p>
-      </div>
     </div>
+
   </div>
   <script>
     const supabaseUrl = 'https://olhgutdozhdvniefmltx.supabase.co';
@@ -197,11 +233,40 @@
     let keys = [];
     let collectedKeys = 0;
 
+    // async function saveScoreToSupabase(playerName, levelName, score) {
+    //   const { data, error } = await _supabase
+    //     .from('score')
+    //     .select('score')
+    //     .eq('levelname', levelName)
+    //     .order('score', { ascending: true })
+    //     .limit(1);
+
+    //   if (error) {
+    //     console.error('Chyba při načítání skóre:', error);
+    //     return;
+    //   }
+
+    //   if (data.length === 0 || score < data[0].score) {
+    //     const { data: insertData, error: insertError } = await _supabase
+    //       .from('score')
+    //       .insert([
+    //         { playername: playerName, levelname: levelName, score: score }
+    //       ]);
+
+    //     if (insertError) {
+    //       console.error('Chyba při ukládání skóre:', insertError);
+    //     } else {
+    //       console.log('Skóre úspěšně uloženo');
+    //     }
+    //   }
+    // }
+
     async function saveScoreToSupabase(playerName, levelName, score) {
       const { data, error } = await _supabase
         .from('score')
         .select('score')
         .eq('levelname', levelName)
+        .eq('playername', playerName)
         .order('score', { ascending: true })
         .limit(1);
 
@@ -211,30 +276,75 @@
       }
 
       if (data.length === 0 || score < data[0].score) {
-        const { data: insertData, error: insertError } = await _supabase
+        const { data: upsertData, error: upsertError } = await _supabase
           .from('score')
-          .insert([
+          .upsert([
             { playername: playerName, levelname: levelName, score: score }
-          ]);
+          ], { onConflict: ['playername', 'levelname'] });
 
-        if (insertError) {
-          console.error('Chyba při ukládání skóre:', insertError);
+        if (upsertError) {
+          console.error('Chyba při ukládání skóre:', upsertError);
         } else {
-          console.log('Skóre úspěšně uloženo');
+          console.log('Skóre úspěšně uloženo nebo aktualizováno');
         }
       }
     }
+
+    /* OLD  async function showOnlineScores() {
+       const { data, error } = await _supabase
+         .from('score')
+         .select('playername, levelname, score')
+         .order('score', { ascending: true });
+ 
+       if (error) {
+         console.error('Chyba při načítání online skóre:', error);
+         return;
+       }
+ 
+       let scoresTable = document.createElement("div");
+       scoresTable.style.position = "fixed";
+       scoresTable.style.top = "50%";
+       scoresTable.style.left = "50%";
+       scoresTable.style.transform = "translate(-50%, -50%)";
+       scoresTable.style.backgroundColor = "white";
+       scoresTable.style.padding = "20px";
+       scoresTable.style.borderRadius = "10px";
+       scoresTable.style.boxShadow = "0 0 10px rgba(0,0,0,0.5)";
+       scoresTable.style.maxHeight = "80vh";
+       scoresTable.style.overflowY = "auto";
+ 
+       let table = '<table style="border-collapse: collapse;"><tr><th style="padding: 10px; border: 1px solid black;">Jméno hráče</th><th style="padding: 10px; border: 1px solid black;">Název bludiště</th><th style="padding: 10px; border: 1px solid black;">Skóre</th></tr>';
+ 
+       for (let score of data) {
+         table += `<tr><td style="padding: 10px; border: 1px solid black;">${score.playername}</td><td style="padding: 10px; border: 1px solid black;">${score.levelname}</td><td style="padding: 10px; border: 1px solid black;">${score.score}</td></tr>`;
+       }
+ 
+       table += "</table>";
+ 
+       scoresTable.innerHTML = table + '<br><button onclick="this.parentNode.remove()">Zavřít</button>';
+       document.body.appendChild(scoresTable);
+     }
+  */
 
     async function showOnlineScores() {
       const { data, error } = await _supabase
         .from('score')
         .select('playername, levelname, score')
+        .order('levelname', { ascending: true })
         .order('score', { ascending: true });
 
       if (error) {
         console.error('Chyba při načítání online skóre:', error);
         return;
       }
+
+      let scoresByLevel = data.reduce((acc, score) => {
+        if (!acc[score.levelname]) {
+          acc[score.levelname] = [];
+        }
+        acc[score.levelname].push(score);
+        return acc;
+      }, {});
 
       let scoresTable = document.createElement("div");
       scoresTable.style.position = "fixed";
@@ -248,12 +358,14 @@
       scoresTable.style.maxHeight = "80vh";
       scoresTable.style.overflowY = "auto";
 
-      let table = '<table style="border-collapse: collapse;"><tr><th style="padding: 10px; border: 1px solid black;">Jméno hráče</th><th style="padding: 10px; border: 1px solid black;">Název bludiště</th><th style="padding: 10px; border: 1px solid black;">Skóre</th></tr>';
-
-      for (let score of data) {
-        table += `<tr><td style="padding: 10px; border: 1px solid black;">${score.playername}</td><td style="padding: 10px; border: 1px solid black;">${score.levelname}</td><td style="padding: 10px; border: 1px solid black;">${score.score}</td></tr>`;
+      let table = '<table style="border-collapse: collapse; width: 100%;">';
+      for (let level in scoresByLevel) {
+        table += `<tr><th colspan="2" style="padding: 10px; border: 1px solid black; background-color: #f0f0f0;">${level}</th></tr>`;
+        table += '<tr><th style="padding: 10px; border: 1px solid black;">Jméno hráče</th><th style="padding: 10px; border: 1px solid black;">Kouzelnické kroky</th></tr>';
+        for (let score of scoresByLevel[level]) {
+          table += `<tr><td style="padding: 10px; border: 1px solid black;">${score.playername}</td><td style="padding: 10px; border: 1px solid black;">${score.score}</td></tr>`;
+        }
       }
-
       table += "</table>";
 
       scoresTable.innerHTML = table + '<br><button onclick="this.parentNode.remove()">Zavřít</button>';
@@ -274,7 +386,7 @@
         moveCount.clientHeight +
         keyCount.clientHeight +
         button.clientHeight +
-        150; // Zahrneme výšku ovládacích prvků a nějaký padding
+        30; // Zahrneme výšku ovládacích prvků a nějaký padding
       const availableHeight = window.innerHeight - controlsHeight;
       const availableWidth = window.innerWidth * 0.9; // Zahrneme nějaký padding
 
@@ -430,7 +542,7 @@
       hammers = [];
       collectedHammers = 0;
       updateHammerCount();
-     
+
 
       for (let i = 0; i < 2; i++) {
         let x1, y1, x2, y2;
