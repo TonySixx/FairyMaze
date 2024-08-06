@@ -228,6 +228,52 @@
           margin: 5px 0;
         }
       }
+
+      .mobile-controls {
+        display: none;
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(255, 255, 255, 0.7);
+        border-radius: 50px;
+        padding: 10px;
+      }
+
+      .mobile-controls button {
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+        margin: 5px;
+        padding: 0;
+        border-radius: 50%;
+      }
+
+      @media (max-width: 768px) {
+        body {
+          flex-direction: column;
+        }
+
+        .game-container {
+          width: 100%;
+          height: 100%;
+          padding: 10px;
+        }
+
+        #gameCanvas {
+          width: 100%;
+          height: auto;
+          max-height: calc(100vh - 200px);
+        }
+
+        .controls {
+          width: 100%;
+        }
+
+        .mobile-controls {
+          display: flex;
+        }
+      }
     </style>
   </head>
 
@@ -312,7 +358,12 @@
       </ul>
       <p>Přejeme vám hodně štěstí a zábavy při řešení bludiště!</p>
     </div>
-
+    <div class="mobile-controls">
+      <button id="upBtn">↑</button>
+      <button id="leftBtn">←</button>
+      <button id="downBtn">↓</button>
+      <button id="rightBtn">→</button>
+    </div>
     <script>
       const supabaseUrl = "https://olhgutdozhdvniefmltx.supabase.co";
       const supabaseKey =
@@ -351,6 +402,12 @@
           helpContainer.style.display === ""
             ? "block"
             : "none";
+      }
+
+      function isMobile() {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent
+        );
       }
 
       // async function saveScoreToSupabase(playerName, levelName, score) {
@@ -505,25 +562,28 @@
           ".game-container button:last-of-type"
         );
 
-        const controlsHeight =
+        let controlsHeight =
           controls.clientHeight +
           moveCount.clientHeight +
           keyCount.clientHeight +
           button.clientHeight +
-          30; // Zahrneme výšku ovládacích prvků a nějaký padding
-        const availableHeight = window.innerHeight - controlsHeight;
-        const availableWidth = window.innerWidth * 0.9; // Zahrneme nějaký padding
+          30;
 
-        // Udržení poměru stran 1:1
+        if (isMobile()) {
+          controlsHeight += 100; // Přidáme místo pro mobilní ovládací prvky
+        }
+
+        const availableHeight = window.innerHeight - controlsHeight;
+        const availableWidth = window.innerWidth * 0.9;
+
         const canvasSize = Math.min(availableWidth, availableHeight);
 
         canvas.width = canvasSize;
         canvas.height = canvasSize;
 
-        // Přepočítání velikosti buněk
         if (size) {
           cellSize = canvas.width / size;
-          drawMaze(); // Překreslíme bludiště s novou velikostí
+          drawMaze();
         }
       }
 
@@ -946,8 +1006,12 @@
         );
         ctx.fill();
 
-         // Hráč - lesní skřítek
-        drawForestSprite(playerPos.x * cellSize + cellSize / 2, playerPos.y * cellSize + cellSize / 2, cellSize / 2);
+        // Hráč - lesní skřítek
+        drawForestSprite(
+          playerPos.x * cellSize + cellSize / 2,
+          playerPos.y * cellSize + cellSize / 2,
+          cellSize / 2
+        );
       }
 
       function movePlayer(dx, dy) {
@@ -1147,6 +1211,16 @@
         }
       });
 
+      const upBtn = document.getElementById("upBtn");
+      const leftBtn = document.getElementById("leftBtn");
+      const downBtn = document.getElementById("downBtn");
+      const rightBtn = document.getElementById("rightBtn");
+
+      upBtn.addEventListener("click", () => movePlayer(0, -1));
+      leftBtn.addEventListener("click", () => movePlayer(-1, 0));
+      downBtn.addEventListener("click", () => movePlayer(0, 1));
+      rightBtn.addEventListener("click", () => movePlayer(1, 0));
+
       window.onload = function () {
         const savedName = localStorage.getItem("playerName");
         if (savedName) {
@@ -1155,6 +1229,10 @@
         resizeCanvas();
         generateMaze();
         animateMaze();
+
+        if (isMobile()) {
+          document.querySelector(".mobile-controls").style.display = "flex";
+        }
       };
 
       document
