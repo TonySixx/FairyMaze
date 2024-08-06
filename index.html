@@ -233,20 +233,52 @@
         display: none;
         position: fixed;
         bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
+        left: 20px;
         background-color: rgba(255, 255, 255, 0.7);
-        border-radius: 50px;
+        border-radius: 10px;
         padding: 10px;
       }
 
+      .mobile-controls-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-gap: 5px;
+      }
+
       .mobile-controls button {
-        width: 50px;
-        height: 50px;
+        width: 60px;
+        height: 60px;
         font-size: 24px;
-        margin: 5px;
+        margin: 0;
         padding: 0;
         border-radius: 50%;
+        background-color: rgba(255, 106, 136, 0.8);
+        border: none;
+        color: white;
+        font-weight: bold;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .mobile-controls button:active {
+        transform: translateY(2px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      #upBtn {
+        grid-column: 2;
+        grid-row: 1;
+      }
+      #leftBtn {
+        grid-column: 1;
+        grid-row: 2;
+      }
+      #rightBtn {
+        grid-column: 3;
+        grid-row: 2;
+      }
+      #downBtn {
+        grid-column: 2;
+        grid-row: 3;
       }
 
       @media (max-width: 768px) {
@@ -271,7 +303,7 @@
         }
 
         .mobile-controls {
-          display: flex;
+          display: block;
         }
       }
     </style>
@@ -359,10 +391,12 @@
       <p>Přejeme vám hodně štěstí a zábavy při řešení bludiště!</p>
     </div>
     <div class="mobile-controls">
-      <button id="upBtn">↑</button>
-      <button id="leftBtn">←</button>
-      <button id="downBtn">↓</button>
-      <button id="rightBtn">→</button>
+      <div class="mobile-controls-grid">
+        <button id="upBtn">↑</button>
+        <button id="leftBtn">←</button>
+        <button id="rightBtn">→</button>
+        <button id="downBtn">↓</button>
+      </div>
     </div>
     <script>
       const supabaseUrl = "https://olhgutdozhdvniefmltx.supabase.co";
@@ -570,7 +604,7 @@
           30;
 
         if (isMobile()) {
-          controlsHeight += 100; // Přidáme místo pro mobilní ovládací prvky
+          controlsHeight += 200; // Přidáme místo pro mobilní ovládací prvky
         }
 
         const availableHeight = window.innerHeight - controlsHeight;
