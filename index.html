@@ -10,325 +10,339 @@
     @import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap");
 
     body {
-        font-family: "Nunito", sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        overflow: hidden;
+      font-family: "Nunito", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      overflow: hidden;
+    }
+
+    .game-container {
+      position: relative;
+      text-align: center;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      height: 100vh;
+      box-sizing: border-box;
+    }
+
+    .help-icon {
+      position: relative;
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      background-color: #ff6a88;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2em;
+      font-weight: bold;
+      box-shadow: 0 5px 15px rgba(242, 97, 103, 0.4);
+    }
+
+    .help-container {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.94);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      max-width: 80%;
+      max-height: 80%;
+      overflow-y: auto;
+      z-index: 1000;
+    }
+
+    .help-container h2 {
+      margin-top: 0;
+      color: #4a4a4a;
+      font-size: 1.5em;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .help-container p {
+      font-size: 1.2em;
+      color: #4a4a4a;
+    }
+
+    .help-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+      font-size: 1.5em;
+      color: #ff6a88;
+    }
+
+    h1 {
+      margin-top: 0;
+      color: #4a4a4a;
+      font-size: 2em;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    #gameCanvas {
+      border: 4px solid #4a4a4a;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      max-width: 100%;
+      max-height: calc(100vh - 200px);
+      /* object-fit: contain; */
+    }
+
+    .controls {
+      margin-top: 20px;
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      border-radius: 10px;
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    button {
+      background: linear-gradient(45deg,
+          #ff9a8b 0%,
+          #ff6a88 55%,
+          #ff99ac 100%);
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 50px;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(242, 97, 103, 0.4);
+    }
+
+    .button-secondary {
+      background: linear-gradient(45deg,
+          #9c8bff 0%,
+          #976aff 55%,
+          #b093ff 100%);
+      box-shadow: 0 5px 15px rgba(128, 97, 242, 0.4);
+    }
+
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(242, 97, 103, 0.6);
+    }
+
+    .button-secondary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(153, 97, 242, 0.6);
+    }
+
+    input {
+      padding: 12px 20px;
+      margin: 8px 0;
+      box-sizing: border-box;
+      border: 2px solid #ccc;
+      border-radius: 50px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+
+    input:focus {
+      border-color: #ff6a88;
+      outline: none;
+      box-shadow: 0 0 10px rgba(255, 106, 136, 0.5);
+    }
+
+    p {
+      font-size: 1.2em;
+      color: #4a4a4a;
+      margin: 10px 0;
+    }
+
+    #moveCount,
+    #keyCount,
+    #hammerCount {
+      font-weight: bold;
+      color: #ff6a88;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(0px);
       }
 
+      50% {
+        transform: translateY(-10px);
+      }
+
+      100% {
+        transform: translateY(0px);
+      }
+    }
+
+    .floating {
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .game-info {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 0.9em;
+    }
+
+    .mobile-controls {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: rgba(255, 255, 255, 0.7);
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    .mobile-controls-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-gap: 5px;
+    }
+
+    .mobile-controls button {
+      width: 50px;
+      height: 50px;
+      font-size: 20px;
+      margin: 0;
+      padding: 0;
+      border-radius: 50%;
+      background-color: rgba(255, 106, 136, 0.8);
+      border: none;
+      color: white;
+      font-weight: bold;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    #upBtn {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    #leftBtn {
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    #rightBtn {
+      grid-column: 3;
+      grid-row: 2;
+    }
+
+    #downBtn {
+      grid-column: 2;
+      grid-row: 3;
+    }
+
+    @media (max-width: 768px) {
       .game-container {
-        position: relative;
-        text-align: center;
-        border-radius: 20px;
-        padding: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width: 100%;
-        height: 100vh;
-        box-sizing: border-box;
-      }
-
-      .help-icon {
-        position: relative;   
-        width: 24px;
-        height: 24px;
-        cursor: pointer;
-        background-color: #ff6a88;
-        color: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2em;
-        font-weight: bold;
-        box-shadow: 0 5px 15px rgba(242, 97, 103, 0.4);
-      }
-
-      .help-container {
-        display: none;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(255, 255, 255, 0.94);
-        border-radius: 20px;
-        padding: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        max-width: 80%;
-        max-height: 80%;
-        overflow-y: auto;
-        z-index: 1000;
-      }
-
-      .help-container h2 {
-        margin-top: 0;
-        color: #4a4a4a;
-        font-size: 1.5em;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-      }
-
-      .help-container p {
-        font-size: 1.2em;
-        color: #4a4a4a;
-      }
-
-      .help-close {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        cursor: pointer;
-        font-size: 1.5em;
-        color: #ff6a88;
-      }
-
-      h1 {
-        margin-top: 0;
-        color: #4a4a4a;
-        font-size: 2em;
-        margin-bottom: 10px;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-      }
-
-      #gameCanvas {
-        border: 4px solid #4a4a4a;
-        border-radius: 10px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        max-width: 100%;
-        max-height: calc(100vh - 200px);
-        /* object-fit: contain; */
+        padding: 10px;
       }
 
       .controls {
-        margin-top: 20px;
-        width: 100%;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: center;
-        padding: 10px;
-        border-radius: 10px;
-        background-color: rgba(0, 0, 0, 0.4);
+        flex-direction: column;
+        align-items: stretch;
       }
 
-      button {
-        background: linear-gradient(
-          45deg,
-          #ff9a8b 0%,
-          #ff6a88 55%,
-          #ff99ac 100%
-        );
-        border: none;
-        color: white;
-        padding: 15px 32px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 16px;
-        margin: 4px 2px;
-        cursor: pointer;
-        border-radius: 50px;
-        transition: all 0.3s ease;
-        box-shadow: 0 5px 15px rgba(242, 97, 103, 0.4);
-      }
-      .button-secondary{
-        background: linear-gradient(
-          45deg,
-          #9c8bff 0%,
-          #976aff 55%,
-          #b093ff 100%
-        );
-        box-shadow: 0 5px 15px rgba(128, 97, 242, 0.4);
-      }
-
-      button:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(242, 97, 103, 0.6);
-      }
-
-      .button-secondary:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(153, 97, 242, 0.6);
-      }
-
-      input {
-        padding: 12px 20px;
-        margin: 8px 0;
-        box-sizing: border-box;
-        border: 2px solid #ccc;
-        border-radius: 50px;
-        font-size: 16px;
-        transition: all 0.3s ease;
-      }
-
-      input:focus {
-        border-color: #ff6a88;
-        outline: none;
-        box-shadow: 0 0 10px rgba(255, 106, 136, 0.5);
-      }
-
-      p {
-        font-size: 1.2em;
-        color: #4a4a4a;
-        margin: 10px 0;
-      }
-
-      #moveCount,
-      #keyCount,
-      #hammerCount {
-        font-weight: bold;
-        color: #ff6a88;
-      }
-
-      @keyframes float {
-        0% {
-          transform: translateY(0px);
-        }
-        50% {
-          transform: translateY(-10px);
-        }
-        100% {
-          transform: translateY(0px);
-        }
-      }
-
-      .floating {
-        animation: float 3s ease-in-out infinite;
-      }
-
-      .game-info {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        background-color: rgba(255, 255, 255, 0.8);
-        padding: 5px 10px;
-        border-radius: 5px;
-        font-size: 0.9em;
+      .controls>div {
+        margin-bottom: 10px;
       }
 
       .mobile-controls {
-        display: none;
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background-color: rgba(255, 255, 255, 0.7);
-        border-radius: 10px;
-        padding: 10px;
+        display: block;
       }
 
-      .mobile-controls-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        grid-gap: 5px;
+      .game-info {
+        top: auto;
+        bottom: 10px;
+        left: 10px;
       }
 
-      .mobile-controls button {
-        width: 50px;
-        height: 50px;
-        font-size: 20px;
-        margin: 0;
-        padding: 0;
-        border-radius: 50%;
-        background-color: rgba(255, 106, 136, 0.8);
-        border: none;
-        color: white;
-        font-weight: bold;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      h1 {
+        font-size: 1.5em;
+        margin-bottom: 5px;
       }
 
-      #upBtn { grid-column: 2; grid-row: 1; }
-      #leftBtn { grid-column: 1; grid-row: 2; }
-      #rightBtn { grid-column: 3; grid-row: 2; }
-      #downBtn { grid-column: 2; grid-row: 3; }
-
-      @media (max-width: 768px) {
-        .game-container {
-          padding: 10px;
-        }
-
-        .controls {
-          flex-direction: column;
-          align-items: stretch;
-        }
-
-        .controls > div {
-          margin-bottom: 10px;
-        }
-
-        .mobile-controls {
-          display: block;
-        }
-
-        .game-info {
-          top: auto;
-          bottom: 10px;
-          left: 10px;
-        }
-
-        h1 {
-          font-size: 1.5em;
-          margin-bottom: 5px;
-        }
-
-        input {
-          padding: 6px 10px;
-          margin: 4px 0;
-          font-size: 14px;
-        }
-
-        button {
-          padding: 6px 20px;
-          font-size: 14px;
-          margin: 4px 2px;
-        }
-
-        p {
-          font-size: 1em;
-          margin: 5px 0;
-        }
+      input {
+        padding: 6px 10px;
+        margin: 4px 0;
+        font-size: 14px;
       }
 
-      @media only screen and (max-height: 900px) {
-        h1 {
-          font-size: 1.5em;
-          margin-bottom: 5px;
-        }
-
-        input {
-          padding: 6px 10px;
-          margin: 4px 0;
-          font-size: 14px;
-        }
-
-        button {
-          padding: 6px 20px;
-          font-size: 14px;
-          margin: 4px 2px;
-        }
-
-        .game-container {
-          padding: 15px;
-        }
-
-        p {
-          font-size: 1em;
-          margin: 5px 0;
-        }
+      button {
+        padding: 6px 20px;
+        font-size: 14px;
+        margin: 4px 2px;
       }
+
+      p {
+        font-size: 1em;
+        margin: 5px 0;
+      }
+    }
+
+    @media only screen and (max-height: 900px) {
+      h1 {
+        font-size: 1.5em;
+        margin-bottom: 5px;
+      }
+
+      input {
+        padding: 6px 10px;
+        margin: 4px 0;
+        font-size: 14px;
+      }
+
+      button {
+        padding: 6px 20px;
+        font-size: 14px;
+        margin: 4px 2px;
+      }
+
+      .game-container {
+        padding: 15px;
+      }
+
+      p {
+        font-size: 1em;
+        margin: 5px 0;
+      }
+    }
   </style>
 </head>
 
 <body>
   <div class="game-container">
     <div style="display: flex; column-gap: 20px;">
-    <h1 class="floating">Kouzelné pohádkové bludiště</h1>
-    <div class="help-icon" onclick="toggleHelp()">?</div>
-  </div>
+      <h1 class="floating">Kouzelné pohádkové bludiště</h1>
+      <div class="help-icon" onclick="toggleHelp()">?</div>
+    </div>
     <canvas id="gameCanvas"></canvas>
     <div class="game-info">
       <p>Kouzelnické kroky: <span id="moveCount">0</span></p>
@@ -336,16 +350,8 @@
       <p>Kladiva: <span id="hammerCount">0</span></p>
     </div>
     <div class="controls">
-      <input
-        type="text"
-        id="playerNameInput"
-        placeholder="Zadejte své jméno"
-      />
-      <input
-        type="text"
-        id="seedInput"
-        placeholder="Zadejte kouzelné slovo"
-      />
+      <input type="text" id="playerNameInput" placeholder="Zadejte své jméno" />
+      <input type="text" id="seedInput" placeholder="Zadejte kouzelné slovo" />
       <button onclick="generateMaze()">Vyčarovat nové bludiště</button>
       <div>
         <button class="button-secondary" onclick="showScores()">Zobrazit skóre</button>
@@ -595,30 +601,30 @@
     }
 
     function resizeCanvas() {
-    const gameContainer = document.querySelector(".game-container");
-    const controls = document.querySelector(".controls");
+      const gameContainer = document.querySelector(".game-container");
+      const controls = document.querySelector(".controls");
 
-    const availableHeight = window.innerHeight - controls.clientHeight - 40;
-    const availableWidth = window.innerWidth - 20;
+      const availableHeight = window.innerHeight - controls.clientHeight - 40;
+      const availableWidth = window.innerWidth - 20;
 
-    const canvasSize = Math.min(availableWidth, availableHeight);
+      const canvasSize = Math.min(availableWidth, availableHeight);
 
-    canvas.width = canvasSize;
-    canvas.height = canvasSize;
+      canvas.width = canvasSize;
+      canvas.height = canvasSize;
 
-    canvas.style.width = `${canvasSize}px`;
-    canvas.style.height = `${canvasSize}px`;
+      canvas.style.width = `${canvasSize}px`;
+      canvas.style.height = `${canvasSize}px`;
 
-    const scale = window.devicePixelRatio;
-    canvas.width = canvasSize * scale;
-    canvas.height = canvasSize * scale;
-    ctx.scale(scale, scale);
+      const scale = window.devicePixelRatio;
+      canvas.width = canvasSize * scale;
+      canvas.height = canvasSize * scale;
+      ctx.scale(scale, scale);
 
-    if (size) {
-      cellSize = canvasSize / size;
-      drawMaze();
+      if (size) {
+        cellSize = canvasSize / size;
+        drawMaze();
+      }
     }
-  }
 
     function saveScore(seedText, moveCount) {
       let scores = JSON.parse(localStorage.getItem("mazeScores")) || {};
@@ -858,10 +864,10 @@
     function drawMaze() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-       // Přidání okraje bludiště
-    ctx.strokeStyle = "#4a4a4a";
-    ctx.lineWidth = 8;
-    ctx.strokeRect(0, 0, canvas.width, canvas.height);
+      // Přidání okraje bludiště
+      ctx.strokeStyle = "#4a4a4a";
+      ctx.lineWidth = 8;
+      ctx.strokeRect(0, 0, canvas.width, canvas.height);
 
       ctx.fillStyle = backgroundGradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -1271,6 +1277,11 @@
       if (isMobile()) {
         document.querySelector(".mobile-controls").style.display = "flex";
       }
+
+      // Přidání event listeneru pro orientationchange
+      window.addEventListener("orientationchange", function () {
+        setTimeout(resizeCanvas, 100);
+      });
     };
 
     document
