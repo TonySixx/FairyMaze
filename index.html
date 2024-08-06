@@ -261,34 +261,34 @@
     //   }
     // }
 
-    async function saveScoreToSupabase(playerName, levelName, score) {
-      const { data, error } = await _supabase
-        .from('score')
-        .select('score')
-        .eq('levelname', levelName)
-        .eq('playername', playerName)
-        .order('score', { ascending: true })
-        .limit(1);
+async function saveScoreToSupabase(playerName, levelName, score) {
+  const { data, error } = await _supabase
+    .from('score')
+    .select('score')
+    .eq('levelname', levelName)
+    .eq('playername', playerName)
+    .order('score', { ascending: true })
+    .limit(1);
 
-      if (error) {
-        console.error('Chyba při načítání skóre:', error);
-        return;
-      }
+  if (error) {
+    console.error('Chyba při načítání skóre:', error);
+    return;
+  }
 
-      if (data.length === 0 || score < data[0].score) {
-        const { data: upsertData, error: upsertError } = await _supabase
-          .from('score')
-          .upsert([
-            { playername: playerName, levelname: levelName, score: score }
-          ], { onConflict: ['playername', 'levelname'] });
+  if (data.length === 0 || score < data[0].score) {
+    const { data: upsertData, error: upsertError } = await _supabase
+      .from('score')
+      .upsert([
+        { playername: playerName, levelname: levelName, score: score }
+      ], { onConflict: ['playername', 'levelname'] });
 
-        if (upsertError) {
-          console.error('Chyba při ukládání skóre:', upsertError);
-        } else {
-          console.log('Skóre úspěšně uloženo nebo aktualizováno');
-        }
-      }
+    if (upsertError) {
+      console.error('Chyba při ukládání skóre:', upsertError);
+    } else {
+      console.log('Skóre úspěšně uloženo nebo aktualizováno');
     }
+  }
+}
 
     /* OLD  async function showOnlineScores() {
        const { data, error } = await _supabase
@@ -409,7 +409,7 @@
         scores[seedText] = moveCount;
         localStorage.setItem("mazeScores", JSON.stringify(scores));
 
-        const playerName = localStorage.getItem("playerName") || "Anonymní";
+        const playerName = document.getElementById("playerNameInput").value || "Anonymní";
         saveScoreToSupabase(playerName, seedText, moveCount);
       }
     }
