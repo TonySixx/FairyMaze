@@ -101,12 +101,14 @@
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
       max-width: 100%;
       max-height: calc(100vh - 200px);
-      /* object-fit: contain; */
     }
 
     .controls {
-      margin-top: 20px;
-      width: 100%;
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 40px);
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
@@ -117,10 +119,7 @@
     }
 
     button {
-      background: linear-gradient(45deg,
-          #ff9a8b 0%,
-          #ff6a88 55%,
-          #ff99ac 100%);
+      background: linear-gradient(45deg, #ff9a8b 0%, #ff6a88 55%, #ff99ac 100%);
       border: none;
       color: white;
       padding: 15px 32px;
@@ -136,10 +135,7 @@
     }
 
     .button-secondary {
-      background: linear-gradient(45deg,
-          #9c8bff 0%,
-          #976aff 55%,
-          #b093ff 100%);
+      background: linear-gradient(45deg, #9c8bff 0%, #976aff 55%, #b093ff 100%);
       box-shadow: 0 5px 15px rgba(128, 97, 242, 0.4);
     }
 
@@ -201,7 +197,7 @@
     }
 
     .game-info {
-      position: absolute;
+      position: fixed;
       top: 10px;
       left: 10px;
       background-color: rgba(255, 255, 255, 0.8);
@@ -218,6 +214,13 @@
       background-color: rgba(255, 255, 255, 0.7);
       border-radius: 10px;
       padding: 10px;
+    }
+
+
+    .mobile-game-info {
+      display: none;
+      margin-top: 10px;
+      text-align: center;
     }
 
     .mobile-controls-grid {
@@ -260,28 +263,72 @@
       grid-row: 3;
     }
 
+    .settings-panel {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background-color: rgba(255, 255, 255, 0.9);
+      transition: transform 0.3s ease-in-out;
+      z-index: 1000;
+    }
+
+    .settings-panel.collapsed {
+      transform: translateY(-100%);
+    }
+
+    #toggleSettings {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      bottom: -45px;
+      right: 10px;
+      background-color: #ff6a88;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .settings-content {
+      padding: 10px;
+    }
+
     @media (max-width: 768px) {
       .game-container {
         padding: 10px;
+        padding-top: 50px;
       }
 
       .controls {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .controls>div {
-        margin-bottom: 10px;
-      }
-
-      .mobile-controls {
-        display: block;
+        display: none;
       }
 
       .game-info {
-        top: auto;
-        bottom: 10px;
-        left: 10px;
+        display: none;
+      }
+
+      .mobile-controls {
+        display: flex;
+       gap: 20px;
+      }
+
+      .mobile-game-info {
+        display: block;
+        min-width: 150px;
+      }
+
+      .settings-panel {
+        display: block;
+      }
+
+      #gameCanvas {
+        max-height: calc(100vh - 200px);
       }
 
       h1 {
@@ -304,6 +351,10 @@
       p {
         font-size: 1em;
         margin: 5px 0;
+      }
+
+      .mobile-controls {
+        bottom: 60px;
       }
     }
 
@@ -355,18 +406,32 @@
       <button onclick="generateMaze()">Vyčarovat nové bludiště</button>
       <div>
         <button class="button-secondary" onclick="showScores()">Zobrazit skóre</button>
-        <button class="button-secondary" onclick="window.showOnlineScores()">
-          Zobrazit online skóre
-        </button>
+        <button class="button-secondary" onclick="window.showOnlineScores()">Zobrazit online skóre</button>
       </div>
     </div>
   </div>
-  <div class="mobile-controls">
+  <div id="mobileControls" class="mobile-controls">
+   
     <div class="mobile-controls-grid">
       <button id="upBtn">↑</button>
       <button id="leftBtn">←</button>
       <button id="rightBtn">→</button>
       <button id="downBtn">↓</button>
+    </div>
+    <div class="mobile-game-info">
+      <p>Kroky: <span id="mobileMoveCount">0</span></p>
+      <p>Klíče: <span id="mobileKeyCount">0</span></p>
+      <p>Kladiva: <span id="mobileHammerCount">0</span></p>
+  </div>
+  </div>
+  <div id="settingsPanel" class="settings-panel">
+    <button id="toggleSettings">...</button>
+    <div class="settings-content">
+      <input type="text" id="mobilePlayerNameInput" placeholder="Zadejte své jméno" />
+      <input type="text" id="mobileSeedInput" placeholder="Zadejte kouzelné slovo" />
+      <button onclick="generateMaze()">Vyčarovat nové bludiště</button>
+      <button class="button-secondary" onclick="showScores()">Zobrazit skóre</button>
+      <button class="button-secondary" onclick="window.showOnlineScores()">Zobrazit online skóre</button>
     </div>
   </div>
   <div class="help-container" id="helpContainer">
@@ -452,38 +517,8 @@
     }
 
     function isMobile() {
-      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent
-      );
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     }
-
-    // async function saveScoreToSupabase(playerName, levelName, score) {
-    //   const { data, error } = await _supabase
-    //     .from('score')
-    //     .select('score')
-    //     .eq('levelname', levelName)
-    //     .order('score', { ascending: true })
-    //     .limit(1);
-
-    //   if (error) {
-    //     console.error('Chyba při načítání skóre:', error);
-    //     return;
-    //   }
-
-    //   if (data.length === 0 || score < data[0].score) {
-    //     const { data: insertData, error: insertError } = await _supabase
-    //       .from('score')
-    //       .insert([
-    //         { playername: playerName, levelname: levelName, score: score }
-    //       ]);
-
-    //     if (insertError) {
-    //       console.error('Chyba při ukládání skóre:', insertError);
-    //     } else {
-    //       console.log('Skóre úspěšně uloženo');
-    //     }
-    //   }
-    // }
 
     async function saveScoreToSupabase(playerName, levelName, score) {
       const { data, error } = await _supabase
@@ -515,41 +550,6 @@
       }
     }
 
-    /* OLD  async function showOnlineScores() {
-     const { data, error } = await _supabase
-       .from('score')
-       .select('playername, levelname, score')
-       .order('score', { ascending: true });
- 
-     if (error) {
-       console.error('Chyba při načítání online skóre:', error);
-       return;
-     }
- 
-     let scoresTable = document.createElement("div");
-     scoresTable.style.position = "fixed";
-     scoresTable.style.top = "50%";
-     scoresTable.style.left = "50%";
-     scoresTable.style.transform = "translate(-50%, -50%)";
-     scoresTable.style.backgroundColor = "white";
-     scoresTable.style.padding = "20px";
-     scoresTable.style.borderRadius = "10px";
-     scoresTable.style.boxShadow = "0 0 10px rgba(0,0,0,0.5)";
-     scoresTable.style.maxHeight = "80vh";
-     scoresTable.style.overflowY = "auto";
- 
-     let table = '<table style="border-collapse: collapse;"><tr><th style="padding: 10px; border: 1px solid black;">Jméno hráče</th><th style="padding: 10px; border: 1px solid black;">Název bludiště</th><th style="padding: 10px; border: 1px solid black;">Skóre</th></tr>';
- 
-     for (let score of data) {
-       table += `<tr><td style="padding: 10px; border: 1px solid black;">${score.playername}</td><td style="padding: 10px; border: 1px solid black;">${score.levelname}</td><td style="padding: 10px; border: 1px solid black;">${score.score}</td></tr>`;
-     }
- 
-     table += "</table>";
- 
-     scoresTable.innerHTML = table + '<br><button onclick="this.parentNode.remove()">Zavřít</button>';
-     document.body.appendChild(scoresTable);
-   }
-*/
 
     async function showOnlineScores() {
       const { data, error } = await _supabase
@@ -602,9 +602,7 @@
 
     function resizeCanvas() {
       const gameContainer = document.querySelector(".game-container");
-      const controls = document.querySelector(".controls");
-
-      const availableHeight = window.innerHeight - controls.clientHeight - 40;
+      const availableHeight = window.innerHeight - (isMobile() ? 110 : 40);
       const availableWidth = window.innerWidth - 20;
 
       const canvasSize = Math.min(availableWidth, availableHeight);
@@ -625,6 +623,7 @@
         drawMaze();
       }
     }
+
 
     function saveScore(seedText, moveCount) {
       let scores = JSON.parse(localStorage.getItem("mazeScores")) || {};
@@ -1240,6 +1239,13 @@
       requestAnimationFrame(animateMaze);
     }
 
+    function initializeGame() {
+      resizeCanvas();
+      generateMaze();
+      animateMaze();
+    }
+
+
     document.addEventListener("keydown", (event) => {
       const key = event.key;
       let dx = 0,
@@ -1265,20 +1271,32 @@
     downBtn.addEventListener("click", () => movePlayer(0, 1));
     rightBtn.addEventListener("click", () => movePlayer(1, 0));
 
+    const settingsPanel = document.getElementById('settingsPanel');
+    const toggleSettings = document.getElementById('toggleSettings');
+
+    toggleSettings.addEventListener('click', () => {
+      settingsPanel.classList.toggle('collapsed');
+    });
+
+    function initializeMobileLayout() {
+      if (isMobile()) {
+        settingsPanel.classList.add('collapsed');
+        document.querySelector('.mobile-controls').style.display = 'block';
+      }
+    }
+
+    window.addEventListener('load', initializeMobileLayout);
+
     window.onload = function () {
       const savedName = localStorage.getItem("playerName");
       if (savedName) {
         document.getElementById("playerNameInput").value = savedName;
       }
-      resizeCanvas();
-      generateMaze();
-      animateMaze();
 
-      if (isMobile()) {
-        document.querySelector(".mobile-controls").style.display = "flex";
-      }
+      setTimeout(initializeGame, 100);
 
-      // Přidání event listeneru pro orientationchange
+      initializeMobileLayout();
+
       window.addEventListener("orientationchange", function () {
         setTimeout(resizeCanvas, 100);
       });
