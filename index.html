@@ -19,15 +19,6 @@
         overflow: hidden;
       }
 
-      .game-container {
-        position: relative;
-        text-align: center;
-        background: rgba(255, 255, 255, 0.8);
-        border-radius: 20px;
-        padding: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-      }
-
       .help-icon {
         position: absolute;
         top: 10px;
@@ -89,16 +80,6 @@
         font-size: 2em;
         margin-bottom: 10px;
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-      }
-
-      #gameCanvas {
-        border: 4px solid #4a4a4a;
-        border-radius: 10px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-      }
-
-      .controls {
-        margin-top: 20px;
       }
 
       button {
@@ -229,11 +210,40 @@
         }
       }
 
+      .game-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+        box-sizing: border-box;
+        width: 100%;
+        height: 100vh;
+        
+      }
+
+      #gameCanvas {
+        max-width: 100%;
+        max-height: calc(100vh - 200px);
+        object-fit: contain;
+      }
+
+      .controls {
+        padding: 4px;
+        border-radius: 10px;
+        background-color: rgba(255, 255, 255, 0.8);
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        margin-top: 10px;
+      }
+
       .mobile-controls {
         display: none;
         position: fixed;
         bottom: 20px;
-        left: 20px;
+        right: 20px;
         background-color: rgba(255, 255, 255, 0.7);
         border-radius: 10px;
         padding: 10px;
@@ -246,9 +256,9 @@
       }
 
       .mobile-controls button {
-        width: 60px;
-        height: 60px;
-        font-size: 24px;
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
         margin: 0;
         padding: 0;
         border-radius: 50%;
@@ -282,24 +292,17 @@
       }
 
       @media (max-width: 768px) {
-        body {
-          flex-direction: column;
-        }
-
         .game-container {
-          width: 100%;
-          height: 100%;
-          padding: 10px;
-        }
-
-        #gameCanvas {
-          width: 100%;
-          height: auto;
-          max-height: calc(100vh - 200px);
+          padding: 5px;
         }
 
         .controls {
-          width: 100%;
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .controls > div {
+          margin-bottom: 10px;
         }
 
         .mobile-controls {
@@ -590,33 +593,27 @@
       function resizeCanvas() {
         const gameContainer = document.querySelector(".game-container");
         const controls = document.querySelector(".controls");
-        const moveCount = document.querySelector("#moveCount").parentElement;
-        const keyCount = document.querySelector("#keyCount").parentElement;
-        const button = document.querySelector(
-          ".game-container button:last-of-type"
-        );
 
-        let controlsHeight =
-          controls.clientHeight +
-          moveCount.clientHeight +
-          keyCount.clientHeight +
-          button.clientHeight +
-          30;
-
-        if (isMobile()) {
-          controlsHeight += 200; // Přidáme místo pro mobilní ovládací prvky
-        }
-
-        const availableHeight = window.innerHeight - controlsHeight;
-        const availableWidth = window.innerWidth * 0.9;
+        const availableHeight = window.innerHeight - controls.clientHeight - 20;
+        const availableWidth = window.innerWidth - 20;
 
         const canvasSize = Math.min(availableWidth, availableHeight);
 
         canvas.width = canvasSize;
         canvas.height = canvasSize;
 
+        // Nastavení fyzické velikosti canvasu pro lepší rozlišení na mobilních zařízeních
+        canvas.style.width = `${canvasSize}px`;
+        canvas.style.height = `${canvasSize}px`;
+
+        // Zvýšení rozlišení canvasu pro ostřejší vykreslování
+        const scale = window.devicePixelRatio;
+        canvas.width = canvasSize * scale;
+        canvas.height = canvasSize * scale;
+        ctx.scale(scale, scale);
+
         if (size) {
-          cellSize = canvas.width / size;
+          cellSize = canvasSize / size;
           drawMaze();
         }
       }
