@@ -286,7 +286,8 @@
         </li>
         <li>
           <strong>Kouzelné klíče:</strong> Musíte sebrat všechny klíče, než
-          můžete dokončit bludiště. Klíče jsou zobrazeny jako malé zlaté trojúhelníky.
+          můžete dokončit bludiště. Klíče jsou zobrazeny jako malé zlaté
+          trojúhelníky.
         </li>
         <li>
           <strong>Kladiva:</strong> Kladiva vám umožní zničit pohyblivé zdi,
@@ -767,6 +768,7 @@
         ctx.fillStyle = backgroundGradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+        //zdi
         for (let y = 0; y < size; y++) {
           for (let x = 0; x < size; x++) {
             if (maze[y][x] === 1) {
@@ -779,6 +781,7 @@
           }
         }
 
+        //kladiva
         for (let hammer of hammers) {
           ctx.fillStyle = "#8B4513"; // Barva rukojeti
           ctx.fillRect(
@@ -818,6 +821,7 @@
           );
         }
 
+        //teleporty
         for (let teleport of teleports) {
           const drawTeleportCircle = (x, y, colorR, colorG, colorB) => {
             ctx.beginPath();
@@ -864,6 +868,7 @@
           );
         }
 
+        //pohybujici se zdi
         const time = new Date().getTime() * 0.001;
         for (let wall of movingWalls) {
           const pulseSize = Math.sin(time * 2) * 2;
@@ -876,6 +881,7 @@
           );
         }
 
+        //klice
         let keyPadding = cellSize / 5;
         for (let key of keys) {
           ctx.fillStyle = "gold";
@@ -910,6 +916,7 @@
           ctx.fill();
         }
 
+        //cíl
         const goalGradient = ctx.createRadialGradient(
           goalPos.x * cellSize + cellSize / 2,
           goalPos.y * cellSize + cellSize / 2,
@@ -939,26 +946,8 @@
         );
         ctx.fill();
 
-        const playerGradient = ctx.createRadialGradient(
-          playerPos.x * cellSize + cellSize / 2,
-          playerPos.y * cellSize + cellSize / 2,
-          0,
-          playerPos.x * cellSize + cellSize / 2,
-          playerPos.y * cellSize + cellSize / 2,
-          cellSize / 2
-        );
-        playerGradient.addColorStop(0, "rgba(65, 105, 225, 0.5)");
-        playerGradient.addColorStop(1, "rgba(65, 105, 225, 0)");
-        ctx.fillStyle = playerGradient;
-        ctx.beginPath();
-        ctx.arc(
-          playerPos.x * cellSize + cellSize / 2,
-          playerPos.y * cellSize + cellSize / 2,
-          cellSize / 2,
-          0,
-          2 * Math.PI
-        );
-        ctx.fill();
+         // Hráč - lesní skřítek
+        drawForestSprite(playerPos.x * cellSize + cellSize / 2, playerPos.y * cellSize + cellSize / 2, cellSize / 2);
       }
 
       function movePlayer(dx, dy) {
@@ -1091,6 +1080,51 @@
             drawMaze();
           }
         }
+      }
+
+      function drawForestSprite(x, y, radius) {
+        // Tělo skřítka
+        ctx.fillStyle = "#241ad9";
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Obličej
+        ctx.fillStyle = "#b7b3ff";
+        ctx.beginPath();
+        ctx.arc(x, y, radius * 0.7, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Oči
+        ctx.fillStyle = "#000";
+        ctx.beginPath();
+        ctx.arc(
+          x - radius * 0.2,
+          y - radius * 0.1,
+          radius * 0.1,
+          0,
+          Math.PI * 2
+        );
+        ctx.arc(
+          x + radius * 0.2,
+          y - radius * 0.1,
+          radius * 0.1,
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
+
+        // Úsměv
+        ctx.strokeStyle = "#000";
+        ctx.beginPath();
+        ctx.arc(
+          x,
+          y + radius * 0.1,
+          radius * 0.3,
+          0.1 * Math.PI,
+          0.9 * Math.PI
+        );
+        ctx.stroke();
       }
 
       function animateMaze() {
